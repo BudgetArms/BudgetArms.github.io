@@ -1,0 +1,10 @@
+type,start,end,label,description,color
+point,2020-03-15,,Project started,Initial project launch,#4f46e5
+span,2020-06-01,2021-03-31,Research,Research and planning,#06b6d4
+span,2020-10-01,2022-01-31,Design,Product design,#f59e0b
+point,2021-05-20,,First release,Version 1.0 published,#ec4899
+span,2021-09-01,2023-02-28,Development,Main development period,#22c55e
+span,2022-04-01,2024-06-30,Marketing,Marketing campaign,#14b8a6
+point,2023-06-15,,Public launch,Product became publicly available,#8b5cf6
+span,2024-01-01,2025-12-31,Expansion,Expansion into new markets,#ef4444
+point,2026-01-01,,Current status,Latest project milestone,#8b5cf6

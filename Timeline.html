@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>D3 Timeline</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #1d1f21;
+      color: #d4d4d8;
+      font-family: Arial, sans-serif;
+    }
+
+    .wrapper {
+      width: min(1200px, 100%);
+      margin: 0 auto;
+      padding: 28px 24px;
+    }
+
+    h1 {
+      margin: 0 0 36px;
+      color: #f4f4f5;
+      font-size: 23px;
+      text-align: center;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
+
+    .year-guide {
+      stroke: #303136;
+      stroke-width: 1;
+      stroke-dasharray: 3 4;
+    }
+
+    .baseline {
+      stroke: #3730a3;
+      stroke-width: 3;
+    }
+
+    .axis path,
+    .axis line {
+      stroke: #52525b;
+    }
+
+    .axis text {
+      fill: #a1a1aa;
+      font-size: 13px;
+    }
+
+    .event-dot {
+      fill: #1d1f21;
+      stroke-width: 3;
+    }
+
+    .point-connector {
+      stroke: #52525b;
+      stroke-width: 1;
+    }
+
+    .event-label {
+      fill: #60a5fa;
+      font-size: 14px;
+      font-weight: bold;
+      text-anchor: middle;
+    }
+
+    .event-description {
+      fill: #a1a1aa;
+      font-size: 12px;
+      text-anchor: middle;
+    }
+
+    .duration-line {
+      stroke-width: 2;
+    }
+
+    .duration-marker {
+      stroke-width: 2;
+    }
+
+    .duration-connector {
+      stroke-width: 1;
+      stroke-dasharray: 2 3;
+      opacity: 0.75;
+    }
+
+    .duration-label {
+      font-size: 13px;
+      font-weight: bold;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+
+    .duration-description {
+      fill: #a1a1aa;
+      font-size: 11px;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+
+    .error {
+      color: #f87171;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrapper">
+    <h1>A project timeline</h1>
+    <div id="chart"></div>
+  </main>
+
+  <script>
+    const width = 1150;
+    const height = 620;
+
+    const margin = {
+      top: 40,
+      right: 70,
+      bottom: 65,
+      left: 70
+    };
+
+    const timelineY = 300;
+    const rowHeight = 64;
+
+    const chartWidth = width - margin.left - margin.right;
+
+    const svg = d3.select("#chart")
+      .append("svg")
+      .attr("viewBox", `0 0 ${width} ${height}`)
+      .attr("width", "100%")
+      .attr("height", height)
+      .attr(
+        "aria-label",
+        "Timeline containing point and duration events from 2020 to 2026"
+      );
+
+    const chart = svg.append("g")
+      .attr("transform", `translate(${margin.left}, 0)`);
+
+    function parseDate(value) {
+      return value
+        ? new Date(`${value}T00:00:00Z`)
+        : null;
+    }
+
+    function intervalsOverlap(a, b) {
+      return a.start < b.end && b.start < a.end;
+    }
+
+    /*
+     * Assign each span to a side and row.
+     *
+     * The algorithm tries to place every span above the timeline.
+     * If that row overlaps another span, it tries below.
+     * Further overlaps create additional rows.
+     */
+    function assignSideAndRow(intervals) {
+      const placed = [];
+
+      const sorted = [...intervals].sort((a, b) => {
+        return d3.ascending(a.start, b.start) ||
+               d3.ascending(a.end, b.end);
+      });
+
+      sorted.forEach(item => {
+        let side = "above";
+        let row = 0;
+
+        while (
+          placed.some(other =>
+            other.side === side &&
+            other.row === row &&
+            intervalsOverlap(item, other)
+          )
+        ) {
+          if (side === "above") {
+            side = "below";
+            row = 0;
+          } else {
+            row += 1;
+          }
+        }
+
+        item.side = side;
+        item.row = row;
+
+        placed.push(item);
+      });
+
+      return sorted;
+    }
+
+    function renderPointEvent(chart, d, index, x, timelineY) {
+      const eventX = x(d.start);
+
+      const above = index % 2 === 0;
+
+      const labelY = above ? 90 : 500;
+      const descriptionY = above ? 112 : 522;
+
+      chart.append("line")
+        .attr("class", "point-connector")
+        .attr("x1", eventX)
+        .attr("x2", eventX)
+        .attr("y1", above ? labelY + 14 : timelineY)
+        .attr("y2", above ? timelineY : labelY - 14);
+
+      chart.append("circle")
+        .attr("class", "event-dot")
+        .attr("cx", eventX)
+        .attr("cy", timelineY)
+        .attr("r", 7)
+        .attr("stroke", d.color);
+
+      chart.append("text")
+        .attr("class", "event-label")
+        .attr("x", eventX)
+        .attr("y", labelY)
+        .text(d.label);
+
+      chart.append("text")
+        .attr("class", "event-description")
+        .attr("x", eventX)
+        .attr("y", descriptionY)
+        .text(d.description);
+    }
+
+    function renderDurationEvent(chart, d, x, timelineY, rowHeight) {
+      const isAbove = d.side === "above";
+
+      const lineY = isAbove
+        ? timelineY - 58 - d.row * rowHeight
+        : timelineY + 58 + d.row * rowHeight;
+
+      const labelY = isAbove
+        ? lineY - 27
+        : lineY + 22;
+
+      const descriptionY = isAbove
+        ? lineY - 10
+        : lineY + 39;
+
+      const startX = x(d.start);
+      const endX = x(d.end);
+      const centerX = (startX + endX) / 2;
+
+      const group = chart.append("g")
+        .attr("class", "duration");
+
+      /*
+       * Horizontal line connecting start and end.
+       */
+      group.append("line")
+        .attr("class", "duration-line")
+        .attr("x1", startX)
+        .attr("x2", endX)
+        .attr("y1", lineY)
+        .attr("y2", lineY)
+        .attr("stroke", d.color);
+
+      /*
+       * Start marker.
+       */
+      group.append("line")
+        .attr("class", "duration-marker")
+        .attr("x1", startX)
+        .attr("x2", startX)
+        .attr("y1", lineY - 7)
+        .attr("y2", lineY + 7)
+        .attr("stroke", d.color);
+
+      /*
+       * End marker.
+       */
+      group.append("line")
+        .attr("class", "duration-marker")
+        .attr("x1", endX)
+        .attr("x2", endX)
+        .attr("y1", lineY - 7)
+        .attr("y2", lineY + 7)
+        .attr("stroke", d.color);
+
+      /*
+       * Dotted connector at the start date.
+       */
+      group.append("line")
+        .attr("class", "duration-connector")
+        .attr("x1", startX)
+        .attr("x2", startX)
+        .attr("y1", timelineY)
+        .attr("y2", lineY)
+        .attr("stroke", d.color);
+
+      /*
+       * Dotted connector at the end date.
+       */
+      group.append("line")
+        .attr("class", "duration-connector")
+        .attr("x1", endX)
+        .attr("x2", endX)
+        .attr("y1", timelineY)
+        .attr("y2", lineY)
+        .attr("stroke", d.color);
+
+      /*
+       * Span title.
+       */
+      group.append("text")
+        .attr("class", "duration-label")
+        .attr("x", centerX)
+        .attr("y", labelY)
+        .attr("fill", d.color)
+        .text(d.label);
+
+      /*
+       * Span description.
+       */
+      group.append("text")
+        .attr("class", "duration-description")
+        .attr("x", centerX)
+        .attr("y", descriptionY)
+        .text(d.description);
+    }
+
+    d3.csv("Data.csv", row => ({
+      type: row.type,
+      start: parseDate(row.start),
+      end: parseDate(row.end),
+      label: row.label,
+      description: row.description,
+      color: row.color || "#4f46e5"
+    }))
+    .then(data => {
+      const domainStart = new Date("2020-01-01T00:00:00Z");
+      const domainEnd = new Date("2026-12-31T23:59:59Z");
+
+      const x = d3.scaleUtc()
+        .domain([domainStart, domainEnd])
+        .range([0, chartWidth]);
+
+      const points = data.filter(d =>
+        d.type === "point" &&
+        d.start
+      );
+
+      const durationItems = assignSideAndRow(
+        data
+          .filter(d =>
+            d.type === "span" &&
+            d.start &&
+            d.end &&
+            d.end > d.start
+          )
+          .map(d => ({ ...d }))
+      );
+
+      /*
+       * Year guide lines.
+       */
+      const years = d3.utcYear.range(
+        d3.utcYear.floor(domainStart),
+        d3.utcYear.offset(domainEnd, 1)
+      );
+
+      chart.selectAll(".year-guide")
+        .data(years)
+        .join("line")
+        .attr("class", "year-guide")
+        .attr("x1", d => x(d))
+        .attr("x2", d => x(d))
+        .attr("y1", 45)
+        .attr("y2", height - margin.bottom);
+
+      /*
+       * Main horizontal timeline.
+       */
+      chart.append("line")
+        .attr("class", "baseline")
+        .attr("x1", 0)
+        .attr("x2", chartWidth)
+        .attr("y1", timelineY)
+        .attr("y2", timelineY);
+
+      /*
+       * Year axis.
+       */
+      const yearAxis = d3.axisBottom(x)
+        .ticks(d3.utcYear.every(1))
+        .tickFormat(d3.utcFormat("%Y"))
+        .tickSize(7);
+
+      chart.append("g")
+        .attr("class", "axis")
+        .attr("transform", `translate(0, ${timelineY})`)
+        .call(yearAxis);
+
+      /*
+       * Render duration events first.
+       */
+      durationItems.forEach(d => {
+        renderDurationEvent(
+          chart,
+          d,
+          x,
+          timelineY,
+          rowHeight
+        );
+      });
+
+      /*
+       * Render point events afterward so dots and labels
+       * remain visible over the timeline.
+       */
+      points.forEach((d, index) => {
+        renderPointEvent(
+          chart,
+          d,
+          index,
+          x,
+          timelineY
+        );
+      });
+    })
+    .catch(error => {
+      console.error(error);
+
+      d3.select("#chart")
+        .append("p")
+        .attr("class", "error")
+        .text("Unable to load File");
+    });
+  </script>
+</body>
+</html>
