@@ -1,0 +1,339 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --background: #3f3f3f;
+  --sidebar: #292929;
+  --text: #0b0b0b;
+  --muted: #666666;
+  --line: #969696;
+}
+
+body {
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--background);
+  color: var(--text);
+}
+
+.page {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.sidebar {
+  position: relative;
+  width: 228px;
+  min-height: 100vh;
+  padding: 10px 16px;
+  background: var(--sidebar);
+  border-right: 2px solid #151515;
+}
+
+.profile-section {
+  width: 100%;
+}
+
+.profile-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 135px;
+  height: 135px;
+  margin: 0 auto 5px;
+  overflow: hidden;
+  border: 2px solid #080808;
+  border-radius: 50%;
+  background: #333;
+}
+
+.profile-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+}
+
+.sidebar h1 {
+  margin-top: 0;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.username {
+  margin-top: 2px;
+  font-size: 17px;
+}
+
+.age {
+  margin-top: 46px;
+  font-size: 17px;
+}
+
+.copyright {
+  position: absolute;
+  left: 31px;
+  bottom: 6px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  padding: 23px 12px;
+}
+
+.content section {
+  max-width: 1050px;
+}
+
+.content h2 {
+  margin-bottom: 11px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.content p {
+  font-size: 17px;
+  line-height: 1.3;
+}
+
+.about-section {
+  margin-bottom: 64px;
+}
+
+.about-section p {
+  max-width: 1040px;
+}
+
+.diplomas-section {
+  margin-bottom: 52px;
+}
+
+.diplomas-section p {
+  line-height: 1.35;
+}
+
+.skills-section {
+  margin-bottom: 57px;
+}
+
+.skills-section p {
+  line-height: 1.35;
+}
+
+.timeline-section {
+  width: 100%;
+}
+
+.timeline {
+  position: relative;
+  height: 92px;
+  width: min(1015px, 100%);
+  margin-top: 5px;
+  margin-left: 8px;
+}
+
+.timeline-line {
+  position: absolute;
+  top: 31px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--line);
+}
+
+.timeline-event {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 31px;
+  background: #191919;
+}
+
+.timeline-event::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 2px;
+  height: 24px;
+  background: #191919;
+}
+
+.timeline-event .year,
+.timeline-event .event-title {
+  position: absolute;
+  display: block;
+  width: 100px;
+  color: var(--muted);
+  font-size: 8px;
+  white-space: nowrap;
+}
+
+.timeline-event .year {
+  top: -14px;
+  left: -10px;
+}
+
+.timeline-event .event-title {
+  top: -14px;
+  left: 28px;
+}
+
+.event-1 {
+  left: 4%;
+  top: 13px;
+}
+
+.event-1::after {
+  top: 31px;
+}
+
+.event-2 {
+  left: 9%;
+  top: 13px;
+}
+
+.event-2::after {
+  top: 31px;
+}
+
+.event-3 {
+  left: 25%;
+  top: 13px;
+}
+
+.event-3::after {
+  top: 31px;
+}
+
+.event-4 {
+  left: 32%;
+  top: 13px;
+}
+
+.event-4::after {
+  top: 31px;
+}
+
+.event-5 {
+  left: 47%;
+  top: 13px;
+}
+
+.event-5::after {
+  top: 31px;
+}
+
+.event-6 {
+  left: 72%;
+  top: 13px;
+}
+
+.event-6::after {
+  top: 31px;
+}
+
+.event-1 .event-title,
+.event-3 .event-title,
+.event-5 .event-title {
+  top: 43px;
+  left: -16px;
+}
+
+.event-2 .event-title,
+.event-4 .event-title,
+.event-6 .event-title {
+  top: -14px;
+}
+
+/* Tablet layout */
+@media (max-width: 800px) {
+  .sidebar {
+    width: 190px;
+  }
+
+  .content {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .content p {
+    font-size: 15px;
+  }
+
+  .about-section {
+    margin-bottom: 45px;
+  }
+}
+
+/* Mobile layout */
+@media (max-width: 600px) {
+  .page {
+    display: block;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+    padding: 22px 20px 28px;
+    border-right: 0;
+    border-bottom: 2px solid #151515;
+  }
+
+  .profile-section {
+    text-align: center;
+  }
+
+  .profile-image {
+    width: 120px;
+    height: 120px;
+  }
+
+  .age {
+    margin-top: 24px;
+    text-align: left;
+  }
+
+  .copyright {
+    position: static;
+    margin-top: 30px;
+    text-align: left;
+  }
+
+  .content {
+    padding: 28px 20px 40px;
+  }
+
+  .content p {
+    font-size: 15px;
+  }
+
+  .diplomas-section {
+    margin-bottom: 42px;
+  }
+
+  .skills-section {
+    margin-bottom: 45px;
+  }
+
+  .timeline {
+    width: 100%;
+    margin-left: 0;
+    overflow-x: auto;
+  }
+
+  .timeline-line {
+    width: 700px;
+  }
+
+  .timeline-event {
+    min-width: 2px;
+  }
+}
