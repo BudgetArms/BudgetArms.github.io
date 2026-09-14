@@ -339,7 +339,7 @@
         .text(d.description);
     }
 
-    d3.csv("Data.csv", row => ({
+    d3.csv("/Resources/Data/Data.csv", row => ({
       type: row.type,
       start: parseDate(row.start),
       end: parseDate(row.end),
