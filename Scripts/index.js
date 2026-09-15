@@ -2,7 +2,7 @@ const projectsContainer = document.getElementById("projects");
 
 async function loadProjects() {
     try {
-        const response = await fetch("/Resources/Data/pinned.json", {
+        const response = await fetch("Resources/Data/PinnedProjects.json", {
             cache: "no-store"
         });
 
