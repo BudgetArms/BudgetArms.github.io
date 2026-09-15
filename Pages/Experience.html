@@ -1,0 +1,47 @@
+<!-- inspiration from https://uicookies.com/demo/packs/timelines/02-minimal/ -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Experience Product</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <link rel="stylesheet" href="/Style/Experience.css" />
+</head>
+<body>
+  <main id="experience" class="experience"></main>
+
+  <script>
+    d3.json("/Resources/Data/ExperienceData.json").then(data => {
+      const experience = d3.select("#experience");
+
+      const events = experience
+        .selectAll(".event")
+        .data(data)
+        .join("article")
+        .attr("class", "event");
+
+      events.append("div")
+        .attr("class", "marker");
+
+      events.append("div")
+        .attr("class", "date")
+        .text(d => d.date);
+
+      events.append("div")
+        .attr("class", "title")
+        .text(d => `${d.version} — ${d.title}`);
+
+      events.append("div")
+        .attr("class", "description")
+        .text(d => d.description);
+    }).catch(error => {
+      console.error("Could not load experience data:", error);
+      d3.select("#experience")
+        .text("Could not load experience data.");
+    });
+  </script>
+</body>
+</html>

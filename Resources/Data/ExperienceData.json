@@ -1,0 +1,26 @@
+[
+  {
+    "date": "JUL 1, 2026",
+    "version": "v4.2",
+    "title": "Offline mode",
+    "description": "Full read-write offline support with conflict-free sync when you reconnect."
+  },
+  {
+    "date": "JUN 12, 2026",
+    "version": "v4.1",
+    "title": "Command palette",
+    "description": "Every action is now three keystrokes away. Press ⌘K anywhere."
+  },
+  {
+    "date": "MAY 20, 2026",
+    "version": "v4.0",
+    "title": "New editor",
+    "description": "Rebuilt from the ground up: twice as fast, half the memory, zero plugins required."
+  },
+  {
+    "date": "APR 3, 2026",
+    "version": "v3.9",
+    "title": "Shared views",
+    "description": "Save a filter, share the link, and everyone sees the same slice of the data."
+  }
+]
