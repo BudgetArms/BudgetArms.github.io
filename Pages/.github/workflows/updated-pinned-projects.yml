@@ -1,0 +1,62 @@
+name: Update pinned projects
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch pinned repositories
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl -sS \
+            -H "Authorization: bearer $GH_TOKEN" \
+            -H "Content-Type: application/json" \
+            -X POST \
+            https://api.github.com/graphql \
+            -d '{"query":"query { user(login: \"BudgetArms\") { pinnedItems(first: 6, types: REPOSITORY) { nodes { ... on Repository { name nameWithOwner description url homepageUrl stargazerCount forkCount primaryLanguage { name } } } } } }"}' \
+            > pinned-response.json
+
+          python3 - <<'PY'
+          import json
+
+          with open("pinned-response.json") as f:
+              data = json.load(f)
+
+          if "errors" in data:
+              raise SystemExit(json.dumps(data["errors"], indent=2))
+
+          repos = data["data"]["user"]["pinnedItems"]["nodes"]
+
+          with open("Resources/Data/PinnedProjects.json", "w") as f:
+              json.dump(repos, f, indent=2)
+
+          print(f"Found {len(repos)} pinned repositories")
+          PY
+
+          rm pinned-response.json
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add pinned.json
+
+          if git diff --cached --quiet; then
+            echo "No changes."
+          else
+            git commit -m "Update pinned projects"
+            git push
+          fi
