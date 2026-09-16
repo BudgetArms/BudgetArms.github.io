@@ -46,5 +46,17 @@
     "primaryLanguage": {
       "name": "C++"
     }
+  },
+  {
+    "name": "Digger",
+    "nameWithOwner": "BudgetArms/Digger",
+    "description": null,
+    "url": "https://github.com/BudgetArms/Digger",
+    "homepageUrl": null,
+    "stargazerCount": 0,
+    "forkCount": 0,
+    "primaryLanguage": {
+      "name": "C++"
+    }
   }
 ]
