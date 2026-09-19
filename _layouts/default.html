@@ -1,10 +1,11 @@
 {% include header.html %}
 
 {% if site.layout == 'stacked' %}
-  <div class="container-lg py-6 p-responsive text-center">
-    {% include masthead.html metadata=true %}
-
-    <div {% if site.style == 'dark' %}class="text-white"{% endif %}>
+<div class="container-lg py-6 p-responsive text-center">
+  {% include masthead.html metadata=true %}
+  
+  <h1>nice</h1>
+  <div {% if site.style == 'dark' %}class="text-white"{% endif %}>
       {{ content }}
     </div>
 
@@ -17,6 +18,13 @@
         {% include interests.html %}
       </div>
     {% endif %}
+
+    {% if site.skills %}
+      <div class="my-6">
+        {% include skills.html %}
+      </div>
+    {% endif %}
+
 
     {% unless posts_total == 0 %}
       <div class="my-6">
@@ -43,6 +51,11 @@
         {% if site.topics %}
           {% include interests.html %}
         {% endif %}
+
+        {% if site.skills %}
+          {% include skills.html %}
+        {% endif %}
+
 
         {% unless posts_total == 0 %}
           {% include thoughts.html %}
